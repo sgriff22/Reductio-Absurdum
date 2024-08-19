@@ -126,13 +126,14 @@ Choose an option:
     switch (choice)
     {
         case "a":
-            ListProducts();
+            AllProducts();
             break;
         case "b":
             AddProduct();
             break;
         case "c":
-            throw new NotImplementedException("Delete a product from the inventory");
+            DeleteProduct();
+            break;
         case "d":
             throw new NotImplementedException("Update a product's details");
         case "e":
@@ -162,14 +163,17 @@ void ReturnToMenu()
 
 void ListProducts()
 {
-    Console.Clear();
-    Console.WriteLine("ALL PRODUCTS\n");
-
     for (int i = 0; i < products.Count; i++)
     {
         Console.WriteLine(ProductDetails(products[i], i));
     }
+}
 
+void AllProducts()
+{
+    Console.Clear();
+    Console.WriteLine("ALL PRODUCTS");
+    ListProducts();
     ReturnToMenu();
 }
 
@@ -244,10 +248,6 @@ void AddProduct()
         {
             Console.WriteLine("✨🛑 Invalid choice. Use a number.✨\n");
         }
-        catch (ArgumentOutOfRangeException)
-        {
-            Console.WriteLine("✨🛑 Invalid choice. Use digits only.✨\n");
-        }
     }
 
     Product newProduct = new Product
@@ -262,4 +262,42 @@ void AddProduct()
 
     Console.WriteLine("\n✨🌟 The spell is cast! Your product has been added to the inventory. 🌟✨");
     ReturnToMenu();
+}
+
+void DeleteProduct()
+{
+    Console.Clear();
+    Console.WriteLine("DELETE PRODUCT");
+    ListProducts();
+    Console.WriteLine("Select a product to delete or enter 0 to cancel");
+
+    bool validInput = false;
+    while(!validInput)
+    {
+        try
+        {
+            int selection = int.Parse(Console.ReadLine().Trim());
+            if(selection == 0)
+            {
+                Console.Clear();
+                validInput = true;
+            }
+            else if(selection >= 1 && selection <= products.Count)
+            {
+                Product removeProduct = products[selection - 1];
+                products.RemoveAt(selection - 1);
+                validInput = true;
+                Console.WriteLine($"\n✨🌟 Product Successfully Removed! 🌟✨");
+                ReturnToMenu();
+            }
+            else
+            {
+                Console.WriteLine("\n✨🛑 Please enter a valid number corresponding to the product.✨\n");
+            }
+        }
+        catch (FormatException)
+        {
+            Console.WriteLine("✨🛑 Invalid choice. Use a number.✨\n");
+        }
+    }
 }
