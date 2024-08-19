@@ -129,7 +129,8 @@ Choose an option:
             ListProducts();
             break;
         case "b":
-            throw new NotImplementedException("Add a product to the inventory");
+            AddProduct();
+            break;
         case "c":
             throw new NotImplementedException("Delete a product from the inventory");
         case "d":
@@ -169,5 +170,96 @@ void ListProducts()
         Console.WriteLine(ProductDetails(products[i], i));
     }
 
+    ReturnToMenu();
+}
+
+void AddProduct()
+{
+    Console.Clear();
+    Console.WriteLine("ADD PRODUCT");
+
+    //Name
+    bool validNameInput = false;
+    string name = "";
+    while(!validNameInput)
+    {
+        Console.WriteLine("Enter the product name:");
+        try
+        {
+            name = Console.ReadLine().Trim();
+            if (string.IsNullOrWhiteSpace(name))
+            {
+                throw new ArgumentException("🛑 Name cannot be empty.");
+            }
+            validNameInput = true;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"✨ Oops! {ex.Message} ✨\n");
+        }
+    }
+
+    //Price
+    bool validPriceInput = false;
+    decimal price = 0.0M;
+    while (!validPriceInput) 
+    {
+        Console.WriteLine("Enter a price:");
+        try
+        {
+            price = int.Parse(Console.ReadLine().Trim());
+            validPriceInput = true;
+        }
+        catch (FormatException)
+        {
+            Console.WriteLine("✨🛑 Invalid price. Use digits only.✨\n");
+        }
+    }
+
+    //ProductTypeId
+    bool validIdInput =false;
+    int chosenId = 0;
+    while (!validIdInput) 
+    {
+        Console.WriteLine("Choose a type:");
+
+        for (int i = 0; i < productTypes.Count; i++)
+        {
+            Console.WriteLine($"{i + 1}. {productTypes[i].Name}");
+        }
+
+        try
+        {
+            chosenId = int.Parse(Console.ReadLine().Trim());
+            if (chosenId >= 1 && chosenId <= productTypes.Count)
+            {
+                validIdInput = true;
+            }
+            else
+            {
+                Console.WriteLine("\n✨🛑 Please enter a valid number corresponding to the product type.✨\n");
+            }
+        }
+        catch (FormatException)
+        {
+            Console.WriteLine("✨🛑 Invalid choice. Use a number.✨\n");
+        }
+        catch (ArgumentOutOfRangeException)
+        {
+            Console.WriteLine("✨🛑 Invalid choice. Use digits only.✨\n");
+        }
+    }
+
+    Product newProduct = new Product
+    {
+        Name = name,
+        Price = price,
+        Available = true,
+        ProductTypeId = chosenId
+    };
+
+    products.Add(newProduct);
+
+    Console.WriteLine("\n✨🌟 The spell is cast! Your product has been added to the inventory. 🌟✨");
     ReturnToMenu();
 }
