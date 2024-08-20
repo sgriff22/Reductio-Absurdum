@@ -1,4 +1,6 @@
-﻿using System.Security.Cryptography;
+﻿using System.Formats.Asn1;
+using System.Security.Cryptography;
+using System.Xml.Serialization;
 
 List<Product> products = new List<Product>()
 {
@@ -135,7 +137,8 @@ Choose an option:
             DeleteProduct();
             break;
         case "d":
-            throw new NotImplementedException("Update a product's details");
+            UpdateProduct();
+            break;
         case "e":
             Console.Clear();
             Console.WriteLine("🧙‍♂️🌟 Goodbye! May your journey be enchanted. 🌟🧙‍♂️");
@@ -148,8 +151,8 @@ Choose an option:
 
 string ProductDetails(Product product, int index)
 {
-    string productString = @$"{index + 1}. {product.Name} - Price: {product.Price:C}  {(product.Available ? "✅ In Stock!" : "🚫 Out of Stock")}
-------------------------------------------------------------------";
+    string productString = @$"{index + 1}. {product.Name} | {product.Price:C} | {(product.Available ? "✅" : "🚫")} | {ProductTypeName(product.ProductTypeId)}
+------------------------------------------------------------------------";
 
     return productString;
 }
@@ -161,8 +164,23 @@ void ReturnToMenu()
     Console.Clear();
 }
 
+string ProductTypeName(int productTypeId)
+{
+    string nameString = "";
+    for (int i = 0; i < productTypes.Count; i++)
+    {
+        if (productTypes[i].Id == productTypeId)
+        {
+            nameString = productTypes[i].Name;
+        }
+    }
+    return nameString;
+}
+
 void ListProducts()
 {
+    Console.WriteLine(@"   NAME   |  PRICE  |  IN STOCK  |  PRODUCT TYPE
+------------------------------------------------------------------------");
     for (int i = 0; i < products.Count; i++)
     {
         Console.WriteLine(ProductDetails(products[i], i));
@@ -298,6 +316,200 @@ void DeleteProduct()
         catch (FormatException)
         {
             Console.WriteLine("✨🛑 Invalid choice. Use a number.✨\n");
+        }
+    }
+}
+
+void UpdateProduct()
+{
+    Console.Clear();
+    Console.WriteLine("UPDATE PRODUCT");
+    ListProducts();
+    Console.WriteLine("Select a product to update or enter 0 to cancel");
+
+    bool validInput = false;
+    int selection = 0;
+    while (!validInput)
+    {   
+        try 
+        {
+            selection = int.Parse(Console.ReadLine().Trim());
+            if (selection == 0)
+            {
+                Console.Clear();
+                return;
+            }
+            else if (selection >= 1 && selection <= products.Count)
+            {
+                validInput = true;
+            }
+            else
+            {
+                Console.WriteLine("\n✨🛑 Please enter a valid number corresponding to a product.✨\n");
+            }
+        }
+        catch (FormatException)
+        {
+            Console.WriteLine("✨🛑 Please select a valid product number.✨");
+        }
+    }
+
+    Product productToUpdate = products[selection - 1];
+
+    Console.Clear();
+    Console.WriteLine($"Editing {productToUpdate.Name}");
+    Console.WriteLine(@$"Current Details:
+- Name: {productToUpdate.Name}
+- Price: {productToUpdate.Price:C}
+- In Stock: {productToUpdate.Available}
+- Type: {ProductTypeName(productToUpdate.ProductTypeId)}
+
+What would you like to update?
+1. Name
+2. Price
+3. Availability
+4. Product Type
+0. Cancel");
+
+    bool validEditInput = false;
+    int choice = 0;
+   
+    while(!validEditInput)
+    {
+        choice = int.Parse(Console.ReadLine().Trim());
+        switch (choice)
+        {
+            case 1:
+                validEditInput = true;
+                Console.WriteLine("Enter Name (or enter nothing to cancel): ");
+                string nameEdit = Console.ReadLine().Trim();
+                if (nameEdit == "")
+                {
+                    Console.Clear();
+                }
+                else 
+                {
+                    productToUpdate.Name = nameEdit;
+                    Console.WriteLine($"✨🌟 Name updated to {nameEdit} 🌟✨");
+                    ReturnToMenu();
+                }
+                break;
+            case 2:
+                validEditInput = true;
+                bool validPrice = false;
+                while(!validPrice)
+                {
+                    try
+                    {
+                        Console.WriteLine("Enter Price (or enter nothing to cancel): ");
+                        string input = Console.ReadLine().Trim();
+                       
+                        if (string.IsNullOrEmpty(input))
+                        {
+                            Console.Clear();
+                            validPrice = true;
+                        }
+                        else 
+                        {
+                            decimal newPrice = decimal.Parse(input);
+                            productToUpdate.Price = newPrice;
+                            Console.WriteLine($"✨🌟 Price updated to {newPrice:C} 🌟✨");
+                            ReturnToMenu();
+                            validPrice = true;
+                        }
+                    }
+                    catch (FormatException)
+                    {
+                        Console.WriteLine("✨🛑 Invalid price format. Please enter a valid decimal number. ✨");
+                    }
+                }
+                break;
+            case 3:
+                validEditInput = true;
+                bool validAvailability = false;  
+                while (!validAvailability)
+                {
+                    Console.WriteLine(@"Enter Availability:
+- enter 'true' for ✅ In Stock, 
+- enter'false' for 🚫 Not In Stock, 
+- or press Enter to cancel");
+                    string availabilityInput = Console.ReadLine().Trim().ToLower();
+
+                    if (string.IsNullOrEmpty(availabilityInput))
+                    {
+                        Console.Clear();
+                        validAvailability = true;
+                    }
+                    else if (availabilityInput == "true")
+                    {
+                        productToUpdate.Available = true;
+                        Console.WriteLine("✨🌟 Availability updated to ✅ In Stock 🌟✨");
+                        validAvailability = true;
+                        ReturnToMenu();
+                    }
+                    else if (availabilityInput == "false")
+                    {
+                        productToUpdate.Available = false;
+                        Console.WriteLine("✨🌟 Availability updated to 🚫 Not In Stock 🌟✨");
+                        validAvailability = true;
+                        ReturnToMenu();
+                    }
+                    else
+                    {
+                        Console.WriteLine("✨🛑 Invalid input. Please enter 'true' or 'false'. ✨");
+                    }
+                }
+                break;
+            case 4:
+                validEditInput = true;
+
+                Console.WriteLine("Product Types:");
+                for (int i = 0; i < productTypes.Count; i++)
+                {
+                    Console.WriteLine($"{i + 1}. {productTypes[i].Name}");
+                }
+                Console.WriteLine("0. Cancel");
+
+                bool validType = false;
+
+                while (!validType)
+                {
+                    Console.WriteLine("Enter the type number (enter 0 to cancel):");
+
+                    try
+                    {
+                        int chosenId = int.Parse(Console.ReadLine().Trim());
+                        if (chosenId == 0)
+                        {
+                            Console.Clear();
+                            validType = true;
+                        }
+                        else if (chosenId >= 1 && chosenId <= productTypes.Count)
+                        {
+                            productToUpdate.ProductTypeId = chosenId;
+                            string typeName = productTypes[chosenId - 1].Name;
+                            Console.WriteLine($"✨🌟 Product Type updated to {typeName} 🌟✨");
+                            ReturnToMenu();
+                            validType = true;
+                        }
+                        else
+                        {
+                            Console.WriteLine("\n✨🛑 Please enter a valid number corresponding to the product type.✨\n");
+                        }
+                    }
+                    catch (FormatException)
+                    {
+                        Console.WriteLine("✨🛑 Invalid choice. Use a number.✨\n");
+                    }
+                }
+                break;
+            case 0:
+                validEditInput = true;
+                Console.Clear();
+                break;
+            default:
+                Console.WriteLine("\n💥 Oops! That spell isn't known. Please choose a valid option. 💥 \n");
+                break;
         }
     }
 }
