@@ -113,7 +113,7 @@ string logo = "🧙 Reductio & Absurdum 🪄";
 
 string choice = null;
 
-while (choice != "e") 
+while (choice != "f") 
 {
     Console.WriteLine(@$"{logo}
 Choose an option:
@@ -121,7 +121,8 @@ Choose an option:
     b. Add a product to the inventory
     c. Delete a product from the inventory
     d. Update a product's details
-    e. EXIT");
+    e. Search inventory by product type
+    f. EXIT");
 
     choice = Console.ReadLine();
 
@@ -140,6 +141,9 @@ Choose an option:
             UpdateProduct();
             break;
         case "e":
+            SearchProducts();
+            break;
+        case "f":
             Console.Clear();
             Console.WriteLine("🧙‍♂️🌟 Goodbye! May your journey be enchanted. 🌟🧙‍♂️");
             break;
@@ -510,6 +514,79 @@ What would you like to update?
             default:
                 Console.WriteLine("\n💥 Oops! That spell isn't known. Please choose a valid option. 💥 \n");
                 break;
+        }
+    }
+}
+
+void SearchProducts()
+{
+    Console.Clear();
+    Console.WriteLine("SEARCH PRODUCTS");
+    Console.WriteLine("Product Types:");
+    
+    // Display the list of product types
+    for (int i = 0; i < productTypes.Count; i++)
+    {
+        Console.WriteLine($"{i + 1}. {productTypes[i].Name}");
+    }
+    Console.WriteLine("0. Cancel");
+
+    bool validType = false;
+
+    while (!validType)
+    {
+        Console.WriteLine("Enter the type number (enter 0 to cancel):");
+
+        try
+        {
+            int chosenId = int.Parse(Console.ReadLine().Trim());
+
+            if (chosenId == 0)
+            {
+                Console.Clear();
+                validType = true;
+            }
+            else if (chosenId >= 1 && chosenId <= productTypes.Count)
+            {
+                List<Product> productsFound = new List<Product>();
+
+                // Find products matching the selected type
+                foreach (Product product in products)
+                {
+                    if (product.ProductTypeId == chosenId)
+                    {
+                        productsFound.Add(product);
+                    }
+                }
+
+                if (productsFound.Count == 0)
+                {
+                    Console.WriteLine("😞 No products match your selection.");
+                }
+                else
+                {
+                    Console.Clear();
+                    Console.WriteLine($"{productTypes[chosenId - 1].Name} Products:\n");
+                    Console.WriteLine(@"   NAME   |  PRICE  |  IN STOCK  |  PRODUCT TYPE
+------------------------------------------------------------------------");
+                    for (int i = 0; i < productsFound.Count; i++)
+                    {
+                        string productString = @$"{i + 1}. {productsFound[i].Name} | {productsFound[i].Price:C} | {(productsFound[i].Available ? "✅" : "🚫")} | {ProductTypeName(productsFound[i].ProductTypeId)}
+------------------------------------------------------------------------";
+                        Console.WriteLine(productString); 
+                    }
+                    ReturnToMenu(); 
+                }
+                validType = true;
+            }
+            else
+            {
+                Console.WriteLine("\n✨🛑 Please enter a valid number corresponding to the product type. ✨\n");
+            }
+        }
+        catch (FormatException)
+        {
+            Console.WriteLine("✨🛑 Invalid choice. Use a number. ✨\n");
         }
     }
 }
