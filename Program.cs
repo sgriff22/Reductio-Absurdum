@@ -119,16 +119,17 @@ string logo = "🧙 Reductio & Absurdum 🪄";
 
 string choice = null;
 
-while (choice != "f") 
+while (choice != "g") 
 {
     Console.WriteLine(@$"{logo}
 Choose an option:
     a. View all products
-    b. Add a product to the inventory
-    c. Delete a product from the inventory
-    d. Update a product's details
-    e. Search inventory by product type
-    f. EXIT");
+    b. View available products only
+    c. Add a product to the inventory
+    d. Delete a product from the inventory
+    e. Update a product's details
+    f. Search inventory by product type
+    g. EXIT");
 
     choice = Console.ReadLine();
 
@@ -138,18 +139,21 @@ Choose an option:
             AllProducts();
             break;
         case "b":
-            AddProduct();
+            AvailableProducts();
             break;
         case "c":
-            DeleteProduct();
+            AddProduct();
             break;
         case "d":
-            UpdateProduct();
+            DeleteProduct();
             break;
         case "e":
-            SearchProducts();
+            UpdateProduct();
             break;
         case "f":
+            SearchProducts();
+            break;
+        case "g":
             Console.Clear();
             Console.WriteLine("🧙‍♂️🌟 Goodbye! May your journey be enchanted. 🌟🧙‍♂️");
             break;
@@ -176,15 +180,8 @@ void ReturnToMenu()
 
 string ProductTypeName(int productTypeId)
 {
-    string nameString = "";
-    for (int i = 0; i < productTypes.Count; i++)
-    {
-        if (productTypes[i].Id == productTypeId)
-        {
-            nameString = productTypes[i].Name;
-        }
-    }
-    return nameString;
+    ProductType productType = productTypes.FirstOrDefault(pt => pt.Id == productTypeId);
+    return productType.Name;
 }
 
 void ListProducts()
@@ -555,16 +552,7 @@ void SearchProducts()
             }
             else if (chosenId >= 1 && chosenId <= productTypes.Count)
             {
-                List<Product> productsFound = new List<Product>();
-
-                // Find products matching the selected type
-                foreach (Product product in products)
-                {
-                    if (product.ProductTypeId == chosenId)
-                    {
-                        productsFound.Add(product);
-                    }
-                }
+                List<Product> productsFound = products.Where(p => p.ProductTypeId == chosenId).ToList();
 
                 if (productsFound.Count == 0)
                 {
@@ -574,11 +562,11 @@ void SearchProducts()
                 {
                     Console.Clear();
                     Console.WriteLine($"{productTypes[chosenId - 1].Name} Products:\n");
-                    Console.WriteLine(@"   NAME   |  PRICE  |  IN STOCK  |  PRODUCT TYPE
+                    Console.WriteLine(@"   NAME   |  PRICE  |  IN STOCK  |  PRODUCT TYPE  |  DAYS ON SHELF
 ------------------------------------------------------------------------");
                     for (int i = 0; i < productsFound.Count; i++)
                     {
-                        string productString = @$"{i + 1}. {productsFound[i].Name} | {productsFound[i].Price:C} | {(productsFound[i].Available ? "✅" : "🚫")} | {ProductTypeName(productsFound[i].ProductTypeId)}
+                        string productString = @$"{i + 1}. {productsFound[i].Name} | {productsFound[i].Price:C} | {(productsFound[i].Available ? "✅" : "🚫")} | {ProductTypeName(productsFound[i].ProductTypeId)} | {productsFound[i].DaysOnShelf}
 ------------------------------------------------------------------------";
                         Console.WriteLine(productString); 
                     }
@@ -596,4 +584,22 @@ void SearchProducts()
             Console.WriteLine("✨🛑 Invalid choice. Use a number. ✨\n");
         }
     }
+}
+
+void AvailableProducts()
+{
+    Console.Clear();
+    Console.WriteLine("AVAILABLE PRODUCTS");
+    List<Product> unsoldProducts = products.Where(p => p.Available).ToList();
+    Console.WriteLine(@"   NAME   |  PRICE  |  IN STOCK  |  PRODUCT TYPE  |  DAYS ON SHELF
+------------------------------------------------------------------------");
+    int index = 0;
+    foreach (Product unsold in unsoldProducts)
+    {
+        string productString = @$"{index + 1}. {unsold.Name} | {unsold.Price:C} | {(unsold.Available ? "✅" : "🚫")} | {ProductTypeName(unsold.ProductTypeId)} | {unsold.DaysOnShelf}
+------------------------------------------------------------------------";
+        Console.WriteLine(productString);
+        index++;
+    }
+    ReturnToMenu();
 }
