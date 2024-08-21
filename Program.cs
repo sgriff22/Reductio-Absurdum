@@ -1,78 +1,84 @@
-﻿using System.Formats.Asn1;
-using System.Security.Cryptography;
-using System.Xml.Serialization;
-
-List<Product> products = new List<Product>()
+﻿List<Product> products = new List<Product>()
 {
     new Product()
     {
         Name = "Enchanted Wand",
         Price = 45.00M,
         Available = true,
-        ProductTypeId = 4 
+        ProductTypeId = 4,
+        DateStocked = new DateTime(2024, 1, 15)
     },
     new Product()
     {
         Name = "Spellbook of Ancient Runes",
         Price = 75.50M,
         Available = true,
-        ProductTypeId = 3
+        ProductTypeId = 3,
+        DateStocked = new DateTime(2024, 3, 22)
     },
     new Product()
     {
         Name = "Potion of Eternal Youth",
         Price = 120.00M,
         Available = false, 
-        ProductTypeId = 2
+        ProductTypeId = 2,
+        DateStocked = new DateTime(2024, 5, 10)
     },
     new Product()
     {
         Name = "Crystal Ball",
         Price = 90.25M,
         Available = true,
-        ProductTypeId = 3
+        ProductTypeId = 3,
+        DateStocked = new DateTime(2024, 7, 8)
     },
     new Product()
     {
         Name = "Mystic Amulet",
         Price = 55.00M,
         Available = true,
-        ProductTypeId = 1
+        ProductTypeId = 1,
+        DateStocked = new DateTime(2024, 7, 30)
     },
     new Product()
     {
         Name = "Dragon Scale Armor",
         Price = 250.00M,
         Available = true,
-        ProductTypeId = 1
+        ProductTypeId = 1,
+        DateStocked = new DateTime(2024, 2, 14)
     },
     new Product()
     {
         Name = "Healing Potion",
         Price = 35.00M,
         Available = true,
-        ProductTypeId = 2
+        ProductTypeId = 2,
+        DateStocked = new DateTime(2024, 4, 1)
     },
     new Product()
     {
         Name = "Wizard's Hat",
         Price = 25.00M,
         Available = true,
-        ProductTypeId = 1
+        ProductTypeId = 1,
+        DateStocked = new DateTime(2024, 6, 17)
     },
     new Product()
     {
         Name = "Magic Carpet",
         Price = 500.00M,
         Available = true,
-        ProductTypeId = 3
+        ProductTypeId = 3,
+        DateStocked = new DateTime(2024, 8, 8)
     },
     new Product()
     {
         Name = "Teleportation Wand",
         Price = 60.00M,
         Available = true,
-        ProductTypeId = 4
+        ProductTypeId = 4,
+        DateStocked = new DateTime(2024, 7, 5)
     }
 };
 
@@ -155,7 +161,7 @@ Choose an option:
 
 string ProductDetails(Product product, int index)
 {
-    string productString = @$"{index + 1}. {product.Name} | {product.Price:C} | {(product.Available ? "✅" : "🚫")} | {ProductTypeName(product.ProductTypeId)}
+    string productString = @$"{index + 1}. {product.Name} | {product.Price:C} | {(product.Available ? "✅" : "🚫")} | {ProductTypeName(product.ProductTypeId)} | {product.DaysOnShelf}
 ------------------------------------------------------------------------";
 
     return productString;
@@ -183,7 +189,7 @@ string ProductTypeName(int productTypeId)
 
 void ListProducts()
 {
-    Console.WriteLine(@"   NAME   |  PRICE  |  IN STOCK  |  PRODUCT TYPE
+    Console.WriteLine(@"   NAME   |  PRICE  |  IN STOCK  |  PRODUCT TYPE  |  DAYS ON SHELF
 ------------------------------------------------------------------------");
     for (int i = 0; i < products.Count; i++)
     {
@@ -277,7 +283,8 @@ void AddProduct()
         Name = name,
         Price = price,
         Available = true,
-        ProductTypeId = chosenId
+        ProductTypeId = chosenId,
+        DateStocked = DateTime.Now
     };
 
     products.Add(newProduct);
